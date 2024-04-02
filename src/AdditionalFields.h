@@ -26,7 +26,7 @@ public:
     if (fields.find(key) == fields.end()) return false;
     return true;
   }
-  const std::string& getField(std::string key) const throw(std::invalid_argument){
+  const std::string& getField(std::string key) const {
     std::map<std::string, std::string>::const_iterator it;
     it = fields.find(key);
     if (it == fields.end())

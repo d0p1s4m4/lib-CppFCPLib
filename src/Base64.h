@@ -14,7 +14,7 @@ public:
 
 class Base64 {
   const static char base64Alphabet[];
-  const static char base64Dealphabet[];
+  const static unsigned char base64Dealphabet[];
 public:
   static std::string base64Encode(const unsigned char *, int);
   static std::string base64Decode(const std::string);

@@ -27,16 +27,16 @@ class TestDDAReplyResponse {
 public:
   typedef boost::shared_ptr<TestDDAReplyResponse> Ptr;
 
-  const std::string getDirectory() const throw(std::logic_error){
+  const std::string getDirectory() const {
     return message->getField("Directory");
   }
-  const std::string getReadFilename() const throw(std::logic_error){
+  const std::string getReadFilename() const {
     return getField("ReadFilename");
   }
-  const std::string getWriteFilename() const throw(std::logic_error){
+  const std::string getWriteFilename() const {
     return getField("WriteFilename");
   }
-  const std::string getContent () const throw(std::logic_error){
+  const std::string getContent () const {
     return getField("ContentToWrite");
   }
 };

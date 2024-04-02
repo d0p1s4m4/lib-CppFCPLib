@@ -1,4 +1,5 @@
 
+#include <boost/filesystem/exception.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 #include <typeinfo>
@@ -392,7 +393,7 @@ Node::testDDA(std::string dir, bool read, bool write)
      TestDDAResponse ret = testDDAResponse(dir, readContent.str());
      try {
        if (write) boost::filesystem::remove( filePath );
-     } catch (boost::filesystem::basic_filesystem_error<boost::filesystem::path>& e) {
+     } catch (boost::filesystem::filesystem_error& e) {
        log().log(ERROR, e.what());
      }
      return ret;
@@ -416,7 +417,7 @@ Node::testDDA(std::string dir, bool read, bool write)
    // can happen if testDDAResponse throws
    try {
      if (write) boost::filesystem::remove( filePath );
-   } catch (boost::filesystem::basic_filesystem_error<boost::filesystem::path>& e) {
+   } catch (boost::filesystem::filesystem_error& e) {
      log().log(ERROR, e.what());
    }
    return TestDDAResponse(dir, false, false);
