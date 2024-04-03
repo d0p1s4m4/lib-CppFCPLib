@@ -53,5 +53,8 @@ include/*
 lib/*
 bin/*
 test/test_runner
+/tests/tests
+tests_*.cmake
 
-list_peer_notes
+DartConfiguration.tcl
+Testing
