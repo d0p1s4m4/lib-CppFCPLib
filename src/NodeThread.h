@@ -10,7 +10,6 @@
 #include "JobTicket.h"
 #include "ServerMessage.h"
 #include "TQueue.h"
-#include "Log.h"
 #include "Server.h"
 
 

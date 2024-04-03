@@ -5,8 +5,7 @@
 #include <ostream>
 #include <istream>
 #include <boost/lexical_cast.hpp>
-
-#include "Log.h"
+#include <spdlog/spdlog.h>
 
 using namespace FCPLib;
 
@@ -50,7 +49,7 @@ std::string Server::readln(){
 void Server::send(const std::string &s){
   boost::system::error_code error;
 
-  log().log(DEBUG, "Sending:\n"+s+"-----------------\n");
+  spdlog::debug("Sending:\n"+s+"-----------------\n");
   if (!socket_->is_open())
     throw std::runtime_error("Server::send :: socket is closed");
   boost::asio::write(*socket_, boost::asio::buffer(s), boost::asio::transfer_all(), error );
@@ -60,7 +59,7 @@ void Server::send(const std::string &s){
 
 void Server::send(const Message::Ptr m)
 {
-  log().log(DEBUG, "Sending:\n"+m->toString()+"-----------------\n");
+  spdlog::debug("Sending:\n"+m->toString()+"-----------------\n");
 
   m->toSocket(*socket_);
 }
@@ -81,11 +80,11 @@ bool Server::dataAvailable(){
 void
 Server::read(char *buf, std::size_t len)
 {
-  log().log(NOISY, "Server::read: top");
+  spdlog::trace("Server::read: top");
   boost::system::error_code error;
 
   while (response.size() < len) {
-    log().log(NOISY, "bytes read: " + boost::lexical_cast<std::string>(response.size()));
+    spdlog::trace("bytes read: {}", boost::lexical_cast<std::string>(response.size()));
     response.commit(socket_->read_some(response.prepare(len), error));
     if (error)
       throw boost::system::system_error(error);

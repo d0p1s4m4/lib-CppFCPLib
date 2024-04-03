@@ -4,6 +4,7 @@ project(FCP)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
+find_package(spdlog REQUIRED)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     find_package(Catch2 REQUIRED)

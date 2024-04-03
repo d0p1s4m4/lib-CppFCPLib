@@ -6,9 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 #include "Node.h"
-#include "Log.h"
 #include "Exceptions.h"
 #include "Base64.h"
 #include "Utils.h"
@@ -46,7 +46,7 @@ Node::Node(std::string name_, std::string host, int port)
 {
   if (!name.size())
     name = Node::_getUniqueId();
-  log().log(DEBUG, "Node started name=" + name + "\n");
+  spdlog::debug("Node started name={}", name);
 
   try
   {
@@ -65,7 +65,7 @@ Node::Node(std::string name_, std::string host, int port)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "Node constructor: waiting for response to ClientHello");
+  spdlog::debug("Node constructor: waiting for response to ClientHello");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -90,7 +90,7 @@ Node::listPeer(const std::string & identifier)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for Peer message");
+  spdlog::debug("waiting for Peer message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -110,7 +110,7 @@ Node::listPeers(const AdditionalFields& fields)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for EndListPeers message");
+  spdlog::debug("waiting for EndListPeers message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -129,7 +129,7 @@ Node::listPeerNotes(const std::string& identifier)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for EndListPeerNotes message");
+  spdlog::debug("waiting for EndListPeerNotes message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -150,7 +150,7 @@ Node::addPeer(const std::string &value, bool isURL = false) {
   JobTicket::Ptr job = JobTicket::factory( this, "", m);
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for Peer message");
+  spdlog::debug("waiting for Peer message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -170,7 +170,7 @@ Node::addPeer(const std::map<std::string, std::string> &message)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for Peer message");
+  spdlog::debug("waiting for Peer message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -194,7 +194,7 @@ Node::modifyPeer(const std::string & nodeIdentifier,
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for Peer message");
+  spdlog::debug("waiting for Peer message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -217,7 +217,7 @@ Node::modifyPeerNote(const std::string & nodeIdentifier,
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for PeerNote message");
+  spdlog::debug("waiting for PeerNote message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -237,7 +237,7 @@ Node::removePeer(const std::string &identifier)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for PeerRemoved message");
+  spdlog::debug("waiting for PeerRemoved message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -259,7 +259,7 @@ Node::getNode(const AdditionalFields& fields)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for NodeData message");
+  spdlog::debug("waiting for NodeData message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -285,7 +285,7 @@ Node::getConfig(const AdditionalFields& fields)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for ConfigData message");
+  spdlog::debug("waiting for ConfigData message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -304,7 +304,7 @@ Node::modifyConfig(Message::Ptr m)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for ConfigData message");
+  spdlog::debug("waiting for ConfigData message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -328,7 +328,7 @@ Node::testDDARequest(std::string dir, bool read, bool write)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for TestDDAReply");
+  spdlog::debug("waiting for TestDDAReply");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -350,7 +350,7 @@ Node::testDDAResponse(std::string dir, std::string readContent)
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for TestDDAComplete");
+  spdlog::debug("waiting for TestDDAComplete");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -394,31 +394,31 @@ Node::testDDA(std::string dir, bool read, bool write)
      try {
        if (write) boost::filesystem::remove( filePath );
      } catch (boost::filesystem::filesystem_error& e) {
-       log().log(ERROR, e.what());
+       spdlog::error(e.what());
      }
      return ret;
    }
    catch (FCPException& e)
    {
-     log().log(ERROR, e.getMessage()->toString());
+     spdlog::error(e.getMessage()->toString());
    }
    catch (std::logic_error& e)
    {
-     log().log(FATAL, e.what()); // this should never happen... TODO: should I force shutdown?
+     spdlog::critical(e.what()); // this should never happen... TODO: should I force shutdown?
    }
    catch (std::runtime_error& e)
    {
-     log().log(ERROR, e.what());
+     spdlog::error(e.what());
    }
    catch (std::exception& e)
    {
-     log().log(ERROR, e.what());
+     spdlog::error(e.what());
    }
    // can happen if testDDAResponse throws
    try {
      if (write) boost::filesystem::remove( filePath );
    } catch (boost::filesystem::filesystem_error& e) {
-     log().log(ERROR, e.what());
+     spdlog::error(e.what());
    }
    return TestDDAResponse(dir, false, false);
 }
@@ -432,7 +432,7 @@ Node::generateSSK(std::string identifier)
   JobTicket::Ptr job = JobTicket::factory( this, identifier, m );
   clientReqQueue->put(job);
 
-  log().log(DEBUG, "waiting for SSKKeypair message");
+  spdlog::debug("waiting for SSKKeypair message");
   job->wait(globalCommandsTimeout);
 
   Response resp = job->getResponse();
@@ -543,7 +543,7 @@ Node::putDisk(const std::string URI, const std::string filename, const std::stri
   if (!r.readDirectory && filehash == "") { // try hash
     std::ifstream is(filename.c_str(), std::ios::binary);
     if (!is.is_open()) {
-      log().log(ERROR, "Error while opening file :: " + filename);
+      spdlog::error("Error while opening file :: " + filename);
       throw FileError("Error while opening file.", filename);
     }
     unsigned char buf[1024];
@@ -560,7 +560,7 @@ Node::putDisk(const std::string URI, const std::string filename, const std::stri
       int bytes_read;
       is.read((char*)buf, 1024);
       if (is.fail()) {
-        log().log(ERROR, "Error while reading file :: " + filename);
+        spdlog::error("Error while reading file :: " + filename);
         throw FileError("Error while reading file.", filename);
       }
       bytes_read = is.gcount();
@@ -622,7 +622,7 @@ Node::putDisk(const std::string URI, const std::string filename, const std::stri
     std::ifstream* is = new std::ifstream(filename.c_str(), std::ios::binary);
     if (!is->is_open()) {
       delete is;
-      log().log(ERROR, "Error while opening file :: " + filename);
+      spdlog::error("Error while opening file :: " + filename);
       throw FileError("Error while opening file.", filename);
     }
     is->seekg(0, std::ios_base::end);
@@ -806,7 +806,7 @@ Node::refreshPersistentRequest()
 
   // persistent jobs will be updated
 
-  log().log(DEBUG, "waiting for EndListPersistentRequests message");
+  spdlog::debug("waiting for EndListPersistentRequests message");
   job->wait(globalCommandsTimeout);
 }
 
@@ -881,7 +881,7 @@ Node::modifyPersistentRequest( JobTicket::Ptr job, const AdditionalFields& field
 void
 Node::shutdown()
 {
-  log().log(DEBUG, "about to shutdown the node");
+  spdlog::debug("about to shutdown the node");
   Message::Ptr m = Message::factory( std::string("Shutdown") );
   JobTicket::Ptr job = JobTicket::factory( this, "", m );
   clientReqQueue->put(job);
@@ -896,11 +896,11 @@ Node::shutdown()
       if ( boost::lexical_cast<int>( e.getMessage()->getField("Code") ) != 18 )
         throw e;
       executor.interrupt();
-      log().log(DEBUG, "node is shutdown");
+      spdlog::debug("node is shutdown");
     }
   } catch (...) {
-    log().log(ERROR, "error has occured while node shutdown, kill thread anyway");
+    spdlog::error("error has occured while node shutdown, kill thread anyway");
     executor.interrupt();
-    log().log(DEBUG, "node thread killed");
+    spdlog::debug("node thread killed");
   }
 }

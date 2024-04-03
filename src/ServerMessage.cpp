@@ -1,5 +1,4 @@
-
-#include "Log.h"
+#include <spdlog/spdlog.h>
 #include "ServerMessage.h"
 #include "JobTicket.h"
 
@@ -13,7 +12,7 @@ ServerMessage::factory(boost::shared_ptr<Server> s){
 
   std::string header = s->readln();
 
-  log().log(DETAIL, "NODE: " + header);
+  spdlog::info("NODE: {}", header);
 
   if (header == "NodeHello"){
     m = Ptr( new NodeHelloMessage() );
@@ -130,7 +129,7 @@ ServerMessage::read(boost::shared_ptr<Server> s)
   for (;;) {
     line = s->readln();
 
-    log().log(DETAIL, "NODE: " + line);
+    spdlog::info("NODE: {}", line);
 
     if ( line == "End" || line == "EndMessage" )
       break;
@@ -212,7 +211,7 @@ AllDataMessage::read(boost::shared_ptr<Server> s)
   for (;;) {
     line = s->readln();
 
-    log().log(DETAIL, "NODE: " + line);
+    spdlog::info("NODE: {}", line);
 
     if ( line == "Data" )
       break;
@@ -224,26 +223,26 @@ AllDataMessage::read(boost::shared_ptr<Server> s)
   }
 
   bytesToRead = boost::lexical_cast<int>( message->getField("DataLength") );
-  log().log(DETAIL, " ... " + message->getField("DataLength") + " bytes of data ...");
+  spdlog::info("... {} bytes of data ...", message->getField("DataLength"));
 }
 
 bool
 AllDataMessage::isLast(const JobTicketPtr job) const
 {
-  log().log(NOISY, "AllDataMessage::isLast: top");
+  spdlog::trace("AllDataMessage::isLast: top");
   GetJob::Ptr job_ = boost::dynamic_pointer_cast<GetJob, JobTicket>( job );
 
   std::ostream& stream = job_->getStream();
   char buf[1024];
 
   std::size_t bytes_available = bytesToRead;
-  log().log(NOISY, "bytesToRead = " + boost::lexical_cast<std::string>( bytes_available ));
+  spdlog::trace("bytesToRead = {}", bytes_available);
   while (bytes_available > 0) {
     std::size_t m = std::min<std::size_t>(bytes_available, 1024);
     server->read(buf, m);
     stream.write(buf, m);
     bytes_available -= m;
-    log().log(DEBUG, "NODE: read "+ boost::lexical_cast<std::string>( m ) + " bytes of data, " + boost::lexical_cast<std::string>( bytes_available ) +  " still left");
+    spdlog::debug("NODE: read {} bytes of data, {} still left", m, bytes_available);
   }
   stream.flush();
 

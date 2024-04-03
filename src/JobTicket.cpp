@@ -1,6 +1,6 @@
 #include "JobTicket.h"
 #include "DefaultValues.h"
-#include "Log.h"
+#include <spdlog/spdlog.h>
 
 #include <boost/lexical_cast.hpp>
 #include "Utils.h"
@@ -12,7 +12,7 @@ using namespace FCPLib;
 JobTicket::Ptr
 JobTicket::factory(Node* n, std::string id, Message::Ptr cmd)
 {
-   log().log(NOISY, "Creating " + cmd->getHeader());
+    spdlog::trace("Creating {}", cmd->getHeader());
    Ptr ret( new JobTicket() );
    ret->init(n, id, cmd);
 
@@ -29,7 +29,7 @@ JobTicket::init(Node* n, std::string &id, Message::Ptr cmd)
    this->lock.acquire();
    this->reqSentLock.acquire();
 
-   log().log(DEBUG, this->toString());
+   spdlog::debug(this->toString());
 }
 
 void
@@ -57,15 +57,15 @@ JobTicket::wait(unsigned int timeout)
     elapsed = (unsigned int) time(0) - then;
     if (elapsed < timeout){
       ZThread::Thread::sleep(1000);
-      log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": job not dispatched, timeout in " +
-        boost::lexical_cast<std::string>(timeout-elapsed));
+      spdlog::debug("wait:{}:{}: job not dispatched, timeout in {}",
+        this->getCommandName(), this->getId(), timeout-elapsed);
       continue;
     }
-    log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": timeout on send command");
+    spdlog::debug("wait:{}:{}: timeout on send command", this->getCommandName(), this->getId());
 
     throw CommandTimeout("Timeout sending " + this->getCommandName());
   }
-  log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": job now dispatched");
+  spdlog::debug("wait:{}:{}: job now dispatched", this->getCommandName(), this->getId());
   while (!lock.tryAcquire(100)){
     if (! node->isAlive() ) {
       if ( node->hasFailure() ) throw node->getFailure();
@@ -74,15 +74,13 @@ JobTicket::wait(unsigned int timeout)
     elapsed = (unsigned int) time(0) - then;
     if (elapsed < timeout) {
       ZThread::Thread::sleep(2000);
-      log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": waiting for node response, timeout in " +
-        boost::lexical_cast<std::string>(timeout-elapsed));
+      spdlog::debug("wait:{}:{}: waiting for node response, timeout in {}", this->getCommandName(), this->getId(), timeout-elapsed);
       continue;
     }
-    log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": timeout on node response");
-
+    spdlog::debug("wait:{}:{}: timeout on node response", this->getCommandName(), this->getId());
     throw CommandTimeout("Timeout sending " + this->getCommandName());
   }
-  log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": job complete");
+  spdlog::debug("wait:{}:{}: job complete", this->getCommandName(), this->getId());
   lock.release();
 }
 
@@ -99,11 +97,10 @@ JobTicket::waitTillReqSent(unsigned int timeout)
     elapsed = (unsigned int) time(0) - then;
     if (elapsed < timeout){
       ZThread::Thread::sleep(1000);
-      log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": job not dispatched, timeout in " +
-        boost::lexical_cast<std::string>(timeout-elapsed));
+      spdlog::debug("wait:{}:{}: job not dispatched, timeout in {}", this->getCommandName(), this->getId(), timeout-elapsed);
       continue;
     }
-    log().log(DEBUG, "wait:"+this->getCommandName()+":"+this->getId()+": timeout on send command");
+    spdlog::debug("wait:{}:{}: timeoit on send command", this->getCommandName(), this->getId());
     throw CommandTimeout("Timeout sending " + this->getCommandName());
   }
 }
@@ -138,7 +135,7 @@ JobTicket::putResult()
 GetJob::Ptr
 GetJob::factory(Node *n, std::string id, Message::Ptr cmd)
 {
-  log().log(NOISY, "Creating " + cmd->getHeader());
+  spdlog::trace("Creating {}", cmd->getHeader());
   Ptr ret( new GetJob() );
   ret->init(n, id, cmd);
 

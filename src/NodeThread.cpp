@@ -4,7 +4,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "NodeThread.h"
-#include "Log.h"
+#include <spdlog/spdlog.h>
 #include "Node.h"
 
 using namespace FCPLib;
@@ -25,25 +25,25 @@ NodeThread::NodeThread(Node* n,
 void NodeThread::run(){
   ServerMessage::Ptr m;
   JobTicket::Ptr job;
-  log().log(DETAIL, "FCPNode: manager thread starting");
+  spdlog::info("FCPNode: manager thread starting");
   try {
     while (!Thread::interrupted()) {
       //check for incoming message from node
-      log().log(NOISY, "_mgrThread: Testing for incoming message");
+      spdlog::trace("_mgrThread: Testing for incoming message");
       if (s->dataAvailable()){
-        log().log(DEBUG, "_mgrThread: Retrieving incoming message");
+        spdlog::debug("_mgrThread: Retrieving incoming message");
         m = ServerMessage::factory(s);
-        log().log(DEBUG, "_mgrThread: Got incoming message, dispatching");
+        spdlog::debug("_mgrThread: Got incoming message, dispatching");
         // dispatch the message
         doMessage(m);
       }
       //check for incoming message from client
-      log().log(NOISY, "_mgrThread: Testing for incoming req");
+      spdlog::trace("_mgrThread: Testing for incoming req");
       if (!clientReqQueue->empty()){
-        log().log(DEBUG, "_mgrThread: Got incoming client req");
+        spdlog::debug("_mgrThread: Got incoming client req");
         job = clientReqQueue->get();
-        log().log(DEBUG, "_mgrThread: Got incoming client req from the queue");
-        log().log(NOISY, job->toString());
+        spdlog::debug("_mgrThread: Got incoming client req from the queue");
+        spdlog::trace(job->toString());
         sendClientReq(job);
       }
       Thread::sleep(100);  // do I need this?
@@ -51,24 +51,21 @@ void NodeThread::run(){
   } catch (ZThread::Synchronization_Exception& e) {
     // thread was interupted, normal way to shutdown the thread
     // this object will be destroyed
-    log().log(ERROR, "_mgrThread: Caught Synchronization_Exception");
-    log().log(ERROR, e.what());
+    spdlog::error("_mgrThread: Caught Synchronization_Exception: {}", e.what());
     node->setIsAlive(false);
   } catch (std::runtime_error& e) {
     // some error has occured, keep the thread so you can access the isAlive and getFailure
-    log().log(ERROR, "_mgrThreag: Caught std::runtime_error");
-    log().log(ERROR, e.what());
+    spdlog::error("_mgrThread: Caught std::runtime_error: {}", e.what());
     node->setIsAlive( false );
     node->setFailure( e.what() );
   } catch (std::exception& e) {
     // some error has occured, keep the thread so you can access the isAlive and getFailure
-    log().log(ERROR, "_mgrThreag: Caught std::exception");
-    log().log(ERROR, e.what());
+    spdlog::error("_mgrThread: Caught std::exception: {}", e.what());
     node->setIsAlive( false );
     node->setFailure( e.what() );
   } catch (...) {
     // thread is stopped and we don't know what has happend
-    log().log(ERROR, "_mgrThreag: Caught something else");
+    spdlog::error("_mgrThread: Caught something else");
     node->setIsAlive(false);
     node->setFailure( "unknown error" );
   }
@@ -77,11 +74,11 @@ void NodeThread::run(){
 void
 NodeThread::sendClientReq(JobTicket::Ptr job)
 {
-  log().log(NOISY, "sendClientReq : top");
+  spdlog::trace("sendClientReq : top");
   if (job->getCommandName() != "WatchGlobal") {
-    log().log(NOISY, "sendClientReq : about to add the job to the map");
+    spdlog::trace("sendClientReq : about to add the job to the map");
     jobs[job->isGlobal() ? 1 : 0][job->getId()] = job;
-    log().log(NOISY, "sendClientReq : added the job to the map");
+    spdlog::trace("sendClientReq : added the job to the map");
   }
 
   s->send(job->getCommand());
@@ -100,18 +97,18 @@ NodeThread::doMessage(ServerMessage::Ptr message)
 
   it = jobs[isGlobal].find(message->getIdOfJob());
   if (it == jobs[isGlobal].end()) {
-    log().log(DETAIL, "doMessage : received " + message->getMessage()->getHeader() + ", cannot find " + message->getIdOfJob() + " in started jobs");
+    spdlog::info("doMessage : received {}, cannot find {} in started jobs", message->getMessage()->getHeader(), message->getIdOfJob());
     /// message from global queue or error
     Message::Ptr m = message->getMessage();
     if (!isGlobal) { // error
-      log().log(DEBUG, "doMessage : received error message");
+      spdlog::debug("doMessage : received error message");
       // TODO: create a mean of passing error messages to client programme
       return;
     } else { // global queue, create a job
-      log().log(DEBUG, "doMessage : received message from a global queue");
+      spdlog::debug("doMessage : received message from a global queue");
       if ( m->getField("Identifier") == "" ) {
         // should never happen
-        log().log(ERROR, "doMessage : global message does not contain identifier !???");
+        spdlog::error("doMessage : global message does not contain identifier !???");
         return;
       }
       JobTicket::Ptr job = JobTicket::factory( this->node, m->getField("Identifier"), m );
@@ -124,12 +121,12 @@ NodeThread::doMessage(ServerMessage::Ptr message)
   job = it->second;
 
   if ( message->isLast( job ) ) {
-    log().log(NOISY, "doMessage : last message for the job");
+    spdlog::trace("doMessage : last message for the job");
     job->putResponse(1, message);
     job->putResult();
 
     if (!job->keep) {
-      log().log(NOISY, "doMessage : job should not be kept, erasing");
+      spdlog::trace("doMessage : job should not be kept, erasing");
       jobs[isGlobal].erase( it );
     }
   }
