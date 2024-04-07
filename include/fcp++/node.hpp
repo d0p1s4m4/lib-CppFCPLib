@@ -2,7 +2,6 @@
 #define FCP_NODE_HPP_
 
 #include <cstddef>
-#include <iterator>
 #include <string>
 
 namespace fcp {
@@ -10,10 +9,6 @@ namespace fcp {
 class Node
 {
 public:
-  struct Iterator
-  {
-    using difference_type = std::ptrdiff_t;
-  };
 
   enum class Trust
   {

@@ -13,19 +13,19 @@ namespace fcp::protocol::request {
 class Req
 {
 public:
-  Req(std::string_view name);
+  Req(std::string_view name) : mName(name) {};
   virtual ~Req() = default;
 
   void SetAttribute(std::string aKey, std::string aValue)
   {
-    this->attributes[aKey] = aValue;
+    this->mAttributes[aKey] = aValue;
   };
 
   std::string ToString()
   {
-    std::string str(this->name);
+    std::string str(this->mName);
     str += "\n";
-    for (auto& it : this->attributes) {
+    for (auto& it : this->mAttributes) {
       str += it.first;
       str += "=";
       str += it.second;
@@ -37,8 +37,8 @@ public:
   }
 
 private:
-  std::string_view name;
-  std::unordered_map<std::string, std::string> attributes;
+  std::string_view mName;
+  std::unordered_map<std::string, std::string> mAttributes;
 };
 
 struct ClientHello

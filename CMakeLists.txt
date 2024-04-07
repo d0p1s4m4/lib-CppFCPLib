@@ -17,13 +17,11 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 
-    find_package(Catch2 REQUIRED)
     include(CTest)
     include(Catch)
     include_directories(${Catch2_INCLUDE_DIRS})
 endif()
 
-include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
