@@ -1,0 +1,6 @@
+#ifndef FCP_SSK_KEYPAIR_HPP
+#define FCP_SSK_KEYPAIR_HPP
+
+
+
+#endif // !FCP_SSK_KEYPAIR_HPP
