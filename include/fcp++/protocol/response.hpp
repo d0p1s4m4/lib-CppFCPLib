@@ -1,7 +1,7 @@
 #ifndef FPC_PROTOCOL_RESPONSE_HPP_
 #define FPC_PROTOCOL_RESPONSE_HPP_
 
-namespace fpc::protocol {
+namespace fcp::protocol {
 
 class Response {
     public:

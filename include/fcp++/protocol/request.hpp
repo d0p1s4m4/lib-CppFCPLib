@@ -36,6 +36,9 @@
 #include <string_view>
 #include <unordered_map>
 
+/**
+ * All stuff related to Client->Node
+ */
 namespace fcp::protocol::request {
 
 class Req

@@ -30,6 +30,7 @@
 #define FCP_NODE_HPP_
 
 #include <string>
+#include <vector>
 
 namespace fcp {
 
@@ -52,6 +53,14 @@ public:
     Type mType;
   };
 
+  enum class CompressionCodec
+  {
+    GZIP,
+    BZIP2,
+    LZMA,
+    LZMA_NEW,
+  };
+
   enum class Trust
   {
     Low,
@@ -68,6 +77,9 @@ public:
 
   Node() = default;
   virtual ~Node() = default;
+
+  private:
+  std::vector<CompressionCodec> mCompressionCodec;
 };
 
 inline std::string
@@ -105,6 +117,22 @@ to_string(bool boolean)
     return "true";
   }
   return "false";
+}
+
+inline std::string
+to_string(Node::CompressionCodec codec)
+{
+  switch (codec) {
+
+    case Node::CompressionCodec::GZIP:
+      return "GZIP(0)";
+    case Node::CompressionCodec::BZIP2:
+      return "BZIP2(1)";
+    case Node::CompressionCodec::LZMA:
+      return "LZMA(2)";
+    case Node::CompressionCodec::LZMA_NEW:
+      return "LZMA_NEW(3)";
+  }
 }
 
 }
