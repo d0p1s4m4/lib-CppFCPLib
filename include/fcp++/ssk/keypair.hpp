@@ -42,7 +42,7 @@ public:
 private:
   const std::string& mInsertURI;
   const std::string& mRequestURI;
-}
+};
 }
 
 #endif // !FCP_SSK_KEYPAIR_HPP

@@ -63,7 +63,7 @@ Client::Connect(const boost_tcp::endpoint& endpoint)
 
     mSocket.connect(endpoint);
 
-    protocol::request::ClientHello clientHello(this->mAppName);
+    protocol::Request::ClientHello clientHello(this->mAppName);
 
     this->Send(clientHello);
   } catch (boost::system::system_error& e) {
@@ -77,7 +77,7 @@ Client::Connect(const boost_tcp::endpoint& endpoint)
 void
 Client::Disconnect()
 {
-  protocol::request::Disconnect disconnect;
+  protocol::Request::Disconnect disconnect;
 
   this->Send(disconnect);
 }
@@ -85,7 +85,7 @@ Client::Disconnect()
 void
 Client::Shutdown()
 {
-  protocol::request::Shutdown shutdown;
+  protocol::Request::Shutdown shutdown;
 
   this->Send(shutdown);
 }

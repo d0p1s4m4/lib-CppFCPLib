@@ -36,16 +36,16 @@
 #include <string_view>
 #include <unordered_map>
 
+namespace fcp::protocol {
+
 /**
  * All stuff related to Client->Node
  */
-namespace fcp::protocol::request {
-
-class Req
+class Request
 {
 public:
-  Req(std::string_view name) : mName(name) {};
-  virtual ~Req() = default;
+  Request(std::string_view name) : mName(name) {};
+  virtual ~Request() = default;
 
   void SetAttribute(std::string aKey, std::string aValue)
   {
@@ -70,10 +70,12 @@ public:
 private:
   std::string_view mName;
   std::unordered_map<std::string, std::string> mAttributes;
-};
+
+
+public:
 
 /**
- * First message sent from the client to the node.
+ * First message sent from the client to the node. Node will response with \ref Response::NodeHello
  *
  * \code{.unparsed}
  * ClientHello
@@ -84,7 +86,9 @@ private:
  */
 struct ClientHello
 {
+  /** A unique name to identify client to the node */
   std::string Name;
+  /** Expected FCP version, must be "2.0" */
   std::string ExpectedVersion;
 
   ClientHello(std::string_view name)
@@ -93,9 +97,9 @@ struct ClientHello
   {
   }
 
-  Req ToReq()
+  Request ToRequest()
   {
-    Req req("ClientHello");
+    Request req("ClientHello");
 
     req.SetAttribute("Name", this->Name);
     req.SetAttribute("ExpectedVersion", this->ExpectedVersion);
@@ -115,9 +119,9 @@ struct ListPeer
   {
   }
 
-  Req ToReq()
+  Request ToRequest()
   {
-    Req req("ListPeer");
+    Request req("ListPeer");
 
     req.SetAttribute("NodeIdentifier", this->NodeIdentifier);
     if (this->WithMetaData.has_value()) {
@@ -138,9 +142,9 @@ struct ListPeers
   std::optional<bool> WithMetaData;
   std::optional<bool> WithVolatile;
 
-  Req ToReq()
+  Request ToRequest()
   {
-    Req req("ListPeers");
+    Request req("ListPeers");
 
     if (this->Identifier.has_value()) {
       req.SetAttribute("Identifier", this->Identifier.value());
@@ -167,9 +171,9 @@ struct ListPeerNotes
   {
   }
 
-  Req ToReq()
+  Request ToReq()
   {
-    Req req("ListPeerNotes");
+    Request req("ListPeerNotes");
 
     req.SetAttribute("NodeIdentifier", this->NodeIdentifier);
 
@@ -182,9 +186,9 @@ struct AddPeer
   Node::Trust Trust;
   Node::Visibility Visibility;
 
-  Req ToReq()
+  Request ToReq()
   {
-    Req req("AddPeer");
+    Request req("AddPeer");
     req.SetAttribute("Trust", to_string(this->Trust));
     req.SetAttribute("Visibility", to_string(this->Visibility));
 
@@ -197,7 +201,7 @@ struct ModifyPeer
 
 struct Disconnect
 {
-  Req ToReq() { return Req("Disconnect"); }
+  Request ToRequest() { return Request("Disconnect"); }
 };
 
 /**
@@ -210,9 +214,10 @@ struct Disconnect
  */
 struct Shutdown
 {
-  Req ToReq() { return Req("Shutdown"); }
+  Request ToRequest() { return Request("Shutdown"); }
 };
 
+};
 }
 
 #endif // !FCP_REQUEST_HPP_

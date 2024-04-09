@@ -76,7 +76,7 @@ template<class Data>
 void
 Client::Send(Data data)
 {
-  this->mSocket.send(boost::asio::buffer(data.ToReq().ToString()));
+  this->mSocket.send(boost::asio::buffer(data.ToRequest().ToString()));
 }
 
 }
