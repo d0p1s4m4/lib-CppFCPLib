@@ -62,3 +62,4 @@ Testing
 *.ninja
 
 _deps/
+docs/generated
