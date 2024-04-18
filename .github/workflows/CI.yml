@@ -30,7 +30,6 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            vcpkgCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
@@ -50,28 +49,19 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Install dependencies (gnu/linux)
-      if: startsWith(matrix.os, 'ubuntu')
-      run: sudo apt-get -y update && sudo apt-get -y install libboost-all-dev
-
     - name: Setup vcpkg
-      if: startsWith(matrix.os, 'windows')
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+        vcpkgGitCommitId: '501cb01e517ee5689577bb01ba8bd1b4c1041a53'
         vcpkgJsonGlob: '**/vcpkg.json'
-        runVcpkgInstall: true
-
-    - name: Set CMAKE_TOOLCHAIN_FILE (Windows)
-      if: startsWith(matrix.os, 'windows')
-      run: echo "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/vcpkg/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}

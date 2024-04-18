@@ -217,6 +217,21 @@ struct Shutdown
   Request ToRequest() { return Request("Shutdown"); }
 };
 
+struct Probe
+{
+  enum class Type {
+    BANDWIDTH,
+    BUILD,
+    IDENTIFIER,
+    LINK_LENGTHS,
+    LOCATION,
+    REJECT_STATS,
+    STORE_SIZE,
+    UPTIME_48H,
+    UPTIME_7D
+  } Type;
+};
+
 };
 }
 

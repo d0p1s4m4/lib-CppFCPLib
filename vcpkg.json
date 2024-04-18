@@ -1,6 +1,9 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-    "dependencies": [
-        "boost-system"
-    ]
+  "name": "libfcppp",
+  "version": "1.0",
+  "dependencies": [
+    "boost-asio",
+    "boost-system",
+    "catch2"
+  ]
 }

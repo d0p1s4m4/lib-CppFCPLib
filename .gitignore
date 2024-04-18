@@ -63,3 +63,5 @@ Testing
 
 _deps/
 docs/generated
+
+CMakeUserPresets.json
